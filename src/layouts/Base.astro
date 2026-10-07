@@ -1,0 +1,71 @@
+---
+// Shared page shell. `section` switches the header between the Mazesys site and an app's pages.
+import '../styles/global.css';
+import { contactEmail } from '../data/apps';
+
+interface Props {
+  title: string;
+  description: string;
+  section?: 'mazesys' | 'zerobite';
+}
+
+const { title, description, section = 'mazesys' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={section === 'zerobite' ? '/zerobite/mark.svg' : '/favicon.svg'} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mona+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="site">
+        {section === 'zerobite' ? (
+          <>
+            <a href="/zerobite/"><img src="/zerobite/mark.svg" alt="" />Zero Bite</a>
+            <nav>
+              <a href="/zerobite/support.html">Support</a>
+              <a href="/zerobite/privacy-policy.html">Privacy</a>
+            </nav>
+          </>
+        ) : (
+          <>
+            <a href="/" class="wordmark">mazesys</a>
+            <nav><a href={`mailto:${contactEmail}`}>Contact</a></nav>
+          </>
+        )}
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer>
+        {section === 'zerobite' ? (
+          <>
+            <p>
+              <a href="/zerobite/support.html">Support</a> · <a href="/zerobite/privacy-policy.html">Privacy policy</a> ·
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+            </p>
+            <p>
+              Recall information from the Food Standards Agency, licensed under the Open Government Licence v3.0. Zero Bite
+              isn’t affiliated with the FSA.
+            </p>
+            <p><a href="/">A Mazesys app</a></p>
+          </>
+        ) : (
+          <p>Mazesys · <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+        )}
+      </footer>
+    </div>
+  </body>
+</html>
