@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import { apps, contactEmail } from '../data/apps';
 
 const services = ['Mobile app development', 'Full-stack development', 'Music production'];
 ---
@@ -12,11 +11,5 @@ const services = ['Mobile app development', 'Full-stack development', 'Music pro
     <ul class="services">
       {services.map((service) => <li>{service}</li>)}
     </ul>
-
-    <p class="home-contact"><a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
-
-    <p class="home-apps">
-      {apps.map((app) => <a href={`/${app.slug}/`}>{app.name}</a>)}
-    </p>
   </section>
 </Base>

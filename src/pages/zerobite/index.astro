@@ -7,7 +7,10 @@ import Base from '../../layouts/Base.astro';
   <h1>Waste less.<br>Cook more.</h1>
   <p class="lead">Zero Bite helps you eat the food you've already bought, before it ends up in the bin.</p>
 
-  <img class="hero" src="/zerobite/header.png" alt="Zero Bite on iPhone: the Fridge screen with Spinach due today, and recipes using what's about to expire.">
+  <picture>
+    <source srcset="/zerobite/hero-dark.png" media="(prefers-color-scheme: dark)" />
+    <img class="hero" src="/zerobite/hero-light.png" alt="Zero Bite on iPhone: the Fridge screen with Spinach due today, and recipes using what's about to expire." width="1920" height="823" />
+  </picture>
 
   <div class="features">
   <div class="card"><strong>Scan the label</strong><p>Point the camera at a best-before or use-by date. A barcode fills in the product name.</p></div>

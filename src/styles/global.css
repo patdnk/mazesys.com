@@ -1,22 +1,25 @@
+/* Zero Bite palette: white with the app's orange → red accents; neutral greys, no browns. */
 :root {
-  --bg: #FFFBF7;
+  --bg: #FFFFFF;
   --surface: #FFFFFF;
-  --chip: #F6EEE6;
-  --hairline: #EEE1D5;
-  --ink: #2B1A12;
-  --muted: #7A5C4E;
+  --chip: #F5F5F5;
+  --hairline: #E8E8E8;
+  --ink: #141414;
+  --muted: #5C5C5C;
   --orange: #C2611A;
   --red: #B23A22;
+  --accent: linear-gradient(90deg, var(--orange), var(--red));
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #201816;
-    --surface: #2A201C;
-    --chip: #352821;
-    --hairline: #3A2C25;
-    --ink: #F7F0EA;
-    --muted: #C3B2A8;
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --chip: #1C1C1C;
+    --hairline: #262626;
+    --ink: #F2F2F2;
+    --muted: #A3A3A3;
     --orange: #E07B2E;
+    --red: #E24B4B;
   }
 }
 * { box-sizing: border-box; }
@@ -32,19 +35,20 @@ header.site a { color: var(--ink); text-decoration: none; font-weight: 600; lett
 header.site img { width: 32px; height: 32px; }
 header.site nav { margin-left: auto; display: flex; gap: 16px; font-size: 15px; }
 header.site nav a { color: var(--muted); font-weight: 500; }
-.overline { color: var(--orange); font-size: 13px; font-weight: 600; letter-spacing: 0.6px; margin: 0 0 6px; }
+.overline { color: var(--orange); background: var(--accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 13px; font-weight: 600; letter-spacing: 0.6px; margin: 0 0 6px; display: inline-block; }
 h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; letter-spacing: -1.5px; margin: 0 0 16px; }
 h2 { font-size: 22px; letter-spacing: -0.4px; margin: 40px 0 10px; }
 h3 { font-size: 17px; margin: 24px 0 6px; }
 p, li { color: var(--muted); }
 p.lead { font-size: 19px; }
 a { color: var(--orange); }
-.card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 4px; padding: 16px 18px; margin: 12px 0; }
+.card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 4px; padding: 16px 18px; margin: 12px 0; position: relative; }
+.features .card::before { content: ""; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 3px; background: linear-gradient(180deg, var(--orange), var(--red)); border-radius: 4px 0 0 4px; }
 .card p { margin: 6px 0 0; }
 .card strong { color: var(--ink); }
-.hero { width: 100%; border-radius: 4px; display: block; margin: 8px 0 32px; }
+.hero { width: 100%; height: auto; border-radius: 4px; display: block; margin: 8px 0 32px; }
 .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.button { display: inline-block; background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 3px; text-decoration: none; font-weight: 600; }
+.button { display: inline-block; background: var(--accent); color: var(--bg); padding: 12px 18px; border-radius: 3px; text-decoration: none; font-weight: 600; }
 footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 13px; color: var(--muted); }
 footer p { margin: 4px 0; }
 
@@ -55,14 +59,17 @@ a.card.app { display: flex; gap: 14px; align-items: flex-start; text-decoration:
 a.card.app img { width: 52px; height: 52px; flex: none; }
 a.card.app:hover { border-color: var(--muted); }
 
-/* Home: plain, logo-led */
-.home { min-height: 72vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 24px; }
+/* Home: plain, logo-led, neutral greys only. Dark mode is the exact inverse of light. */
+html:has(body.plain) { background: #F9F9F9; }
+body.plain { background: transparent; color: #111111; }
+.home { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 24px; }
 .home-logo { width: min(420px, 82vw); height: auto; }
-@media (prefers-color-scheme: dark) { .home-logo { filter: invert(1); } }
 .services { list-style: none; padding: 0; margin: 48px 0 0; }
-.services li { color: var(--ink); font-size: 19px; font-weight: 500; letter-spacing: -0.2px; margin: 6px 0; }
-.home-contact { margin: 36px 0 0; }
-.home-apps { margin: 12px 0 0; font-size: 14px; }
-.home-apps a { color: var(--muted); }
-.home a { color: var(--ink); text-underline-offset: 3px; }
-.home .home-apps a { color: var(--muted); }
+.services li { color: #111111; font-size: 19px; font-weight: 500; letter-spacing: -0.2px; margin: 6px 0; }
+
+@media (prefers-color-scheme: dark) {
+  html:has(body.plain) { background: #060606; }
+  body.plain { color: #EEEEEE; }
+  body.plain .home-logo { filter: invert(1); }
+  body.plain .services li { color: #EEEEEE; }
+}
