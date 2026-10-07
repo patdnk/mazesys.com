@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2B1A12"/><text x="32" y="44" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="36" font-weight="700" fill="#FFFBF7" text-anchor="middle">m</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+  <!-- Favicon: the Mazesys maze from src/assets/mazesys-logo.svg (walls only; the wordmark is unreadable at 16px). -->
+  <rect width="640" height="640" rx="128" fill="#141414"/>
+  <g fill="#FFFFFF" fill-rule="evenodd" transform="translate(34.8 134.0) scale(0.95)">
+    <path d="M2 300 L2 301 L133 301 L156 278 L133 254 L131.5 254 L119 267 L84 267 L84 266 L130.5 220 L172 261 L175.5 259 L196.5 237 L132 172 L130 172Z"/>
+    <path d="M150 152 L301 304 L302.5 304.5 L326 281 L174.5 128.5Z"/>
+    <path d="M192 280 L300.5 389.5 L411 280 L411 278.5 L242 110 L242 108.5 L301 50 L518 267 L518 268 L483.5 268 L303 87 L301.5 87 L278.5 110 L278.5 111.5 L469 302 L597 302 L598.5 300.5 L598.5 299 L301 2 L194 108 L193.5 110 L362.5 278 L362.5 280 L301.5 341 L300 341 L217 257 L215 257Z"/>
+  </g>
+</svg>
