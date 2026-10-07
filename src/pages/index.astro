@@ -6,7 +6,9 @@ const services = ['Mobile app development', 'Full-stack development', 'Music pro
 
 <Base title="Mazesys" description="Mazesys: mobile app development, full-stack development and music production." bare>
   <section class="home">
-    <img class="home-logo" src="/mazesys-logo.png" alt="Mazesys" width="622" height="412" />
+    <div class="logo-wrap">
+      <img class="home-logo" src="/mazesys-logo.png" alt="Mazesys" width="622" height="412" />
+    </div>
 
     <ul class="services">
       {services.map((service) => <li>{service}</li>)}
