@@ -12,6 +12,12 @@ Small static site built with [Astro](https://astro.build), hosted free on GitHub
 `build.format: 'preserve'` in `astro.config.mjs` keeps those `.html` file names, so the App Store URLs never change.
 Apps listed on the home page come from `src/data/apps.ts`; add an app there and give it a folder under `src/pages/<slug>/`.
 
+## Logo
+
+`src/assets/mazesys-logo.svg` is traced from `design/mazesys-logo-source.jpg` by `python3 scripts/trace-logo.py`
+(Pillow only). The home page inlines it so CSS can draw the maze wall by wall; swap in an original vector
+file any time, keeping the `wall` / `wordmark` classes and `pathLength="1"` on the walls.
+
 ## Local development
 
 ```bash

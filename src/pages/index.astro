@@ -1,14 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+// Traced from design/mazesys-logo-source.jpg by scripts/trace-logo.py; inlined so CSS can animate each wall.
+import logo from '../assets/mazesys-logo.svg?raw';
 
 const services = ['Mobile app development', 'Full-stack development', 'Music production'];
 ---
 
 <Base title="Mazesys" description="Mazesys: mobile app development, full-stack development and music production." bare>
   <section class="home">
-    <div class="logo-wrap">
-      <img class="home-logo" src="/mazesys-logo.png" alt="Mazesys" width="622" height="412" />
-    </div>
+    <div class="maze-logo" set:html={logo} />
 
     <ul class="services">
       {services.map((service) => <li>{service}</li>)}
