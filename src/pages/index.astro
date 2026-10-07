@@ -1,26 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
 import { apps, contactEmail } from '../data/apps';
+
+const services = ['Mobile app development', 'Full-stack development', 'Music production'];
 ---
 
-<Base title="Mazesys" description="Mazesys makes small, thoughtful iPhone apps.">
-  <p class="overline">Mazesys</p>
-  <h1>Small, thoughtful<br />iPhone apps.</h1>
-  <p class="lead">We make focused apps that do one job well and respect your privacy.</p>
+<Base title="Mazesys" description="Mazesys: mobile app development, full-stack development and music production." bare>
+  <section class="home">
+    <img class="home-logo" src="/mazesys-logo.png" alt="Mazesys" width="622" height="412" />
 
-  <h2>Apps</h2>
-  <div class="apps">
-    {apps.map((app) => (
-      <a class="card app" href={`/${app.slug}/`}>
-        <img src={app.icon} alt="" />
-        <div>
-          <strong>{app.name}</strong>
-          <p>{app.summary}</p>
-        </div>
-      </a>
-    ))}
-  </div>
+    <ul class="services">
+      {services.map((service) => <li>{service}</li>)}
+    </ul>
 
-  <h2>Get in touch</h2>
-  <p>Questions or feedback: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+    <p class="home-contact"><a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+
+    <p class="home-apps">
+      {apps.map((app) => <a href={`/${app.slug}/`}>{app.name}</a>)}
+    </p>
+  </section>
 </Base>

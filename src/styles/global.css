@@ -54,3 +54,15 @@ footer p { margin: 4px 0; }
 a.card.app { display: flex; gap: 14px; align-items: flex-start; text-decoration: none; }
 a.card.app img { width: 52px; height: 52px; flex: none; }
 a.card.app:hover { border-color: var(--muted); }
+
+/* Home: plain, logo-led */
+.home { min-height: 72vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 24px; }
+.home-logo { width: min(420px, 82vw); height: auto; }
+@media (prefers-color-scheme: dark) { .home-logo { filter: invert(1); } }
+.services { list-style: none; padding: 0; margin: 48px 0 0; }
+.services li { color: var(--ink); font-size: 19px; font-weight: 500; letter-spacing: -0.2px; margin: 6px 0; }
+.home-contact { margin: 36px 0 0; }
+.home-apps { margin: 12px 0 0; font-size: 14px; }
+.home-apps a { color: var(--muted); }
+.home a { color: var(--ink); text-underline-offset: 3px; }
+.home .home-apps a { color: var(--muted); }

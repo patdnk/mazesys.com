@@ -7,9 +7,11 @@ interface Props {
   title: string;
   description: string;
   section?: 'mazesys' | 'zerobite';
+  /** Hide the top bar and footer (the home page leads with the logo and has its own contact line). */
+  bare?: boolean;
 }
 
-const { title, description, section = 'mazesys' } = Astro.props;
+const { title, description, section = 'mazesys', bare = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -28,7 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <div class="wrap">
-      <header class="site">
+      {!bare && <header class="site">
         {section === 'zerobite' ? (
           <>
             <a href="/zerobite/"><img src="/zerobite/mark.svg" alt="" />Zero Bite</a>
@@ -43,13 +45,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             <nav><a href={`mailto:${contactEmail}`}>Contact</a></nav>
           </>
         )}
-      </header>
+      </header>}
 
       <main>
         <slot />
       </main>
 
-      <footer>
+      {!bare && <footer>
         {section === 'zerobite' ? (
           <>
             <p>
@@ -65,7 +67,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         ) : (
           <p>Mazesys · <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
         )}
-      </footer>
+      </footer>}
     </div>
   </body>
 </html>
