@@ -174,3 +174,13 @@ body.plain a.card.app:hover { border-color: var(--d-ink); }
   .diagram .flow { display: none; }
 }
 
+/* Steroids, under the contact section: same monochrome tokens as the diagram. */
+.steroids { border-top: 1px solid var(--d-rule); padding-top: 40px; }
+.steroids canvas { display: block; width: 100%; aspect-ratio: 16 / 10; background: var(--d-node); border: 1px solid var(--d-rule); border-radius: 4px; cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.steroids canvas.playing { touch-action: none; }
+.steroids canvas:focus-visible { outline: 2px solid var(--d-ink); outline-offset: 2px; }
+.steroids-hint, body.plain .steroids-hint { margin: 10px 0 0; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--d-tag); }
+@media (pointer: coarse) {
+  .steroids canvas { aspect-ratio: 4 / 3; }
+  .steroids-hint { display: none; }
+}

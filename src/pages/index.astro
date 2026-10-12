@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import StudioDiagram from '../components/StudioDiagram.astro';
+import Steroids from '../components/Steroids.astro';
 import { apps, contactEmail } from '../data/apps';
 // Traced from design/mazesys-logo-source.jpg by scripts/trace-logo.py; inlined so CSS can animate each wall.
 import logo from '../assets/mazesys-logo.svg?raw';
@@ -77,6 +78,8 @@ const stats = [
     </p>
     <a class="contact-button" href={`mailto:${contactEmail}`}>{contactEmail}</a>
   </section>
+
+  <Steroids />
 
   <footer class="home-footer">
     <span>© {new Date().getFullYear()} Mazesys</span>
