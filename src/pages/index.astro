@@ -1,17 +1,133 @@
 ---
 import Base from '../layouts/Base.astro';
+import StudioDiagram from '../components/StudioDiagram.astro';
+import { apps, contactEmail } from '../data/apps';
 // Traced from design/mazesys-logo-source.jpg by scripts/trace-logo.py; inlined so CSS can animate each wall.
 import logo from '../assets/mazesys-logo.svg?raw';
 
-const services = ['Mobile app development', 'Full-stack development', 'Music production'];
+const skills = [
+  'iOS', 'Swift', 'SwiftUI', 'Android', 'Kotlin', 'KMP', 'Expo', 'React Native',
+  'TypeScript', 'Node.js', 'Microsoft Fabric', 'Power BI',
+];
+
+// `count` animates from zero; `pad` keeps the two-digit look while it counts.
+const stats = [
+  { count: 1, pad: 2, label: 'iPhone app in the studio: Zero Bite' },
+  { count: 4, pad: 2, label: 'Disciplines under one roof' },
+  { text: 'UK', label: 'Based in the United Kingdom' },
+];
 ---
 
-<Base title="Mazesys" description="Mazesys: mobile app development, full-stack development and music production." bare>
+<Base title="Mazesys" description="Mazesys is an independent UK studio for mobile apps, full-stack products, data and BI, and music production." bare>
   <section class="home">
     <div class="maze-logo" set:html={logo} />
 
-    <ul class="services">
-      {services.map((service) => <li>{service}</li>)}
+    <ul class="skills" aria-label="Skills">
+      {skills.map((skill, i) => <li style={`--i:${i}`}>{skill}</li>)}
     </ul>
   </section>
+
+  <section class="home-section intro">
+    <p class="eyebrow">Independent studio</p>
+    <h1>Small software, made carefully.</h1>
+    <p class="lead">
+      Mazesys designs and builds mobile apps and the full-stack systems behind them, turns data into reporting people
+      actually use with Microsoft Fabric and Power BI, and produces music on the side. Every product is made end to
+      end in-house: design, iOS, Android, web, APIs, data and the sound.
+    </p>
+  </section>
+
+  <section class="home-section">
+    <StudioDiagram />
+
+    <ul class="stats">
+      {stats.map((stat) => (
+        <li>
+          <span class="stat-num" data-count={stat.count} data-pad={stat.pad}>
+            {stat.text ?? String(stat.count).padStart(stat.pad ?? 1, '0')}
+          </span>
+          <span class="stat-label">{stat.label}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="home-section">
+    <p class="eyebrow">Products</p>
+    <div class="apps">
+      {apps.map((app) => (
+        <a class="card app" href={`/${app.slug}/`}>
+          <img src={app.icon} alt="" />
+          <span>
+            <strong>{app.name}</strong>
+            <span class="app-tagline">{app.tagline}</span>
+            <p>{app.summary}</p>
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="home-section contact" id="contact">
+    <p class="eyebrow">Contact</p>
+    <h2>Got a project, or a question about an app?</h2>
+    <p>
+      Email for app support, new work, or anything else. A real person reads every message and replies within a couple
+      of working days.
+    </p>
+    <a class="contact-button" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+  </section>
+
+  <footer class="home-footer">
+    <span>© {new Date().getFullYear()} Mazesys</span>
+    <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+  </footer>
 </Base>
+
+<script>
+  // Diagram: light the paths that belong to the hovered or focused node.
+  document.querySelectorAll<HTMLElement>('[data-diagram]').forEach((diagram) => {
+    const clear = () => diagram.querySelectorAll('.lit').forEach((el) => el.classList.remove('lit'));
+    diagram.querySelectorAll<SVGElement>('[data-node]').forEach((node) => {
+      const light = () => {
+        clear();
+        const id = node.dataset.node!;
+        node.classList.add('lit');
+        node.closest('svg')!.querySelectorAll<SVGElement>('[data-keys]').forEach((path) => {
+          if (id === 'hub' || path.dataset.keys!.split(' ').includes(id)) path.classList.add('lit');
+        });
+        diagram.classList.add('tracing');
+      };
+      const leave = () => { clear(); diagram.classList.remove('tracing'); };
+      node.addEventListener('mouseenter', light);
+      node.addEventListener('focus', light);
+      node.addEventListener('mouseleave', leave);
+      node.addEventListener('blur', leave);
+    });
+  });
+
+  // Stats: count up once they scroll into view.
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+  const countUp = (el: HTMLElement) => {
+    const target = Number(el.dataset.count);
+    const pad = Number(el.dataset.pad ?? 1);
+    const start = performance.now();
+    const frame = (now: number) => {
+      const p = Math.min((now - start) / 900, 1);
+      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3)))).padStart(pad, '0');
+      if (p < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  };
+  if (!reduceMotion) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        countUp(entry.target as HTMLElement);
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach((el) => observer.observe(el));
+  }
+</script>

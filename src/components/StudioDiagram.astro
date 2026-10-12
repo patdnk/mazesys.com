@@ -1,0 +1,128 @@
+---
+// Blueprint-style system diagram: the four disciplines feed the Mazesys studio, which ships the apps.
+// Drawn twice (wide and tall) so it stays legible on phones; CSS shows one or the other.
+// Hovering or focusing a node lights the paths in its `keys`; the script lives on the home page.
+
+interface Node {
+  id: string; label: string; tag: string;
+  /** Narrower label and tag for the tall (phone) layout, where four boxes share one row. */
+  short?: string; shortTag?: string;
+  href?: string; icon?: string; future?: boolean;
+}
+interface Box { x: number; y: number; w: number; h: number }
+interface Link { d: string; keys: string; slow?: boolean; rev?: boolean }
+interface Layout { viewBox: string; compact?: boolean; boxes: Record<string, Box>; hub: Box; links: Link[] }
+
+const nodes: Node[] = [
+  { id: 'mobile', label: 'MOBILE APPS', short: 'MOBILE', tag: 'D-01 · iOS + ANDROID', shortTag: 'D-01' },
+  { id: 'fullstack', label: 'FULL-STACK', tag: 'D-02 · WEB + API', shortTag: 'D-02' },
+  { id: 'data', label: 'DATA & BI', tag: 'D-03 · FABRIC + POWER BI', shortTag: 'D-03' },
+  { id: 'music', label: 'MUSIC', tag: 'D-04 · PRODUCTION', shortTag: 'D-04' },
+  { id: 'zerobite', label: 'ZERO BITE', tag: 'P-01 · iPHONE', href: '/zerobite/', icon: '/zerobite/mark.svg' },
+  { id: 'next', label: 'NEXT APP', tag: 'P-02 · IN THE WORKS', future: true },
+];
+
+const wide: Layout = {
+  viewBox: '0 0 1000 470',
+  boxes: {
+    mobile: { x: 40, y: 50, w: 200, h: 56 },
+    fullstack: { x: 40, y: 150, w: 200, h: 56 },
+    data: { x: 40, y: 250, w: 200, h: 56 },
+    music: { x: 40, y: 350, w: 200, h: 56 },
+    zerobite: { x: 760, y: 130, w: 200, h: 56 },
+    next: { x: 760, y: 294, w: 200, h: 56 },
+  },
+  hub: { x: 400, y: 198, w: 200, h: 84 },
+  links: [
+    { d: 'M240 78 H340 V214 H400', keys: 'mobile zerobite' },
+    { d: 'M240 178 H320 V232 H400', keys: 'fullstack zerobite next', slow: true },
+    { d: 'M240 278 H320 V248 H400', keys: 'data next' },
+    { d: 'M240 378 H340 V266 H400', keys: 'music next', slow: true },
+    { d: 'M600 230 H680 V158 H760', keys: 'mobile fullstack zerobite' },
+    { d: 'M600 250 H680 V322 H760', keys: 'fullstack data music next', slow: true },
+  ],
+};
+
+const tall: Layout = {
+  viewBox: '0 0 360 540',
+  compact: true,
+  boxes: {
+    mobile: { x: 6, y: 58, w: 82, h: 52 },
+    fullstack: { x: 94, y: 58, w: 82, h: 52 },
+    data: { x: 182, y: 58, w: 82, h: 52 },
+    music: { x: 270, y: 58, w: 82, h: 52 },
+    zerobite: { x: 16, y: 430, w: 154, h: 52 },
+    next: { x: 190, y: 430, w: 154, h: 52 },
+  },
+  hub: { x: 80, y: 250, w: 200, h: 64 },
+  links: [
+    { d: 'M47 110 V170 H140 V250', keys: 'mobile zerobite' },
+    { d: 'M135 110 V150 H170 V250', keys: 'fullstack zerobite next', slow: true },
+    { d: 'M223 110 V150 H190 V250', keys: 'data next' },
+    { d: 'M311 110 V170 H220 V250', keys: 'music next', slow: true },
+    { d: 'M160 314 V372 H93 V430', keys: 'mobile fullstack zerobite' },
+    { d: 'M200 314 V372 H267 V430', keys: 'fullstack data music next', slow: true },
+  ],
+};
+
+const layouts = [
+  { name: 'wide', layout: wide },
+  { name: 'tall', layout: tall },
+];
+
+/** Corner points of an orthogonal path, for the little joint dots. */
+function joints(d: string): [number, number][] {
+  const points: [number, number][] = [];
+  let x = 0, y = 0;
+  for (const [, cmd, a, b] of d.matchAll(/([MHV])\s*(-?[\d.]+)(?:\s+(-?[\d.]+))?/g)) {
+    if (cmd === 'M') { x = +a; y = +b; continue; }
+    if (cmd === 'H') x = +a; else y = +a;
+    points.push([x, y]);
+  }
+  return points.slice(0, -1);
+}
+---
+
+<figure class="diagram" data-diagram>
+  {layouts.map(({ name, layout }) => (
+    <svg class={`diagram-${name}`} viewBox={layout.viewBox} role="img" aria-label="Mobile apps, full-stack, data and BI, and music production feed the Mazesys studio, which ships Zero Bite and the next app.">
+      <defs>
+        <pattern id={`grid-minor-${name}`} width="20" height="20" patternUnits="userSpaceOnUse"><path class="grid-minor" d="M20 0H0V20" fill="none" /></pattern>
+        <pattern id={`grid-major-${name}`} width="100" height="100" patternUnits="userSpaceOnUse"><path class="grid-major" d="M100 0H0V100" fill="none" /></pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#grid-minor-${name})`} />
+      <rect width="100%" height="100%" fill={`url(#grid-major-${name})`} />
+      <text class="tag sheet" x="16" y="22">MAZESYS · STUDIO OVERVIEW · REV 01</text>
+
+      {layout.links.map((link) => <path class="link" data-keys={link.keys} d={link.d} />)}
+      {layout.links.map((link) => <path class:list={['flow', { slow: link.slow, rev: link.rev }]} data-keys={link.keys} d={link.d} />)}
+      {layout.links.flatMap((link) => joints(link.d)).map(([cx, cy]) => <circle class="joint" cx={cx} cy={cy} r="3.5" />)}
+
+      <g class="hub" data-node="hub" tabindex="0">
+        <rect x={layout.hub.x} y={layout.hub.y} width={layout.hub.w} height={layout.hub.h} />
+        <rect class="core" x={layout.hub.x} y={layout.hub.y} width="6" height={layout.hub.h} />
+        <text x={layout.hub.x + layout.hub.w / 2 + 3} y={layout.hub.y + layout.hub.h / 2 + 5}>MAZESYS</text>
+        <text class="tag" x={layout.hub.x} y={layout.hub.y - 9}>STUDIO · CORE</text>
+      </g>
+
+      {nodes.map((node) => {
+        const box = layout.boxes[node.id];
+        const textX = box.x + box.w / 2 + (node.icon ? 14 : 0);
+        const body = (
+          <>
+            <rect x={box.x} y={box.y} width={box.w} height={box.h} />
+            {node.icon && <image href={node.icon} x={box.x + 10} y={box.y + box.h / 2 - 15} width="30" height="30" />}
+            <text x={textX} y={box.y + box.h / 2 + 5}>{layout.compact ? node.short ?? node.label : node.label}</text>
+            <text class="tag" x={box.x} y={box.y - 9}>{layout.compact ? node.shortTag ?? node.tag : node.tag}</text>
+          </>
+        );
+        return node.href ? (
+          <a class="node" data-node={node.id} href={node.href} aria-label="Zero Bite">{body}</a>
+        ) : (
+          <g class:list={['node', { future: node.future }]} data-node={node.id} tabindex="0">{body}</g>
+        );
+      })}
+    </svg>
+  ))}
+  <figcaption>Hover a box to trace how the work connects.</figcaption>
+</figure>
