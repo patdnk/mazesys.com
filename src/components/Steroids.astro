@@ -1,5 +1,5 @@
 ---
-// Steroids: Asteroids, but you shoot pills. Drawn in the home page's monochrome blueprint style.
+// Steroids: Asteroids, but you shoot pills, and a syringe stands in for the UFO. Drawn in the home page's monochrome blueprint style.
 // Desktop plays with the keyboard; touch screens get an on-canvas joystick and fire button.
 // The best score stays in this browser only.
 ---
@@ -21,10 +21,13 @@
   type Pill = { x: number; y: number; r: number; t: number; size: number; vx: number; vy: number; a: number; spin: number };
   type Bullet = { x: number; y: number; vx: number; vy: number; life: number };
   type Bit = Bullet & { max: number };
+  /** Steroids' answer to the UFO: crosses the screen, weaves up and down, and shoots drops at the ship. */
+  type Syringe = { x: number; y: number; vx: number; vy: number; turn: number; reload: number };
 
   const TAU = Math.PI * 2;
   const PILL_R = [0, 12, 20, 34];
   const PILL_POINTS = [0, 100, 50, 20];
+  const SYRINGE_POINTS = 500;
   const KEYMAP: Record<string, keyof Keys> = {
     ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'thrust', KeyW: 'thrust', Space: 'fire',
   };
@@ -45,6 +48,7 @@
       mode: 'idle' as 'idle' | 'playing' | 'paused' | 'over',
       score: 0, best: loadBest(), lives: 3, wave: 0, overAt: 0,
       ship: null as Ship | null, bullets: [] as Bullet[], pills: [] as Pill[], bits: [] as Bit[],
+      syringe: null as Syringe | null, drops: [] as Bullet[], syringeIn: 0,
       cooldown: 0, respawn: 0, nextWave: 0,
     };
 
@@ -79,6 +83,8 @@
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
     const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
     const pad = (n: number) => String(n).padStart(6, '0');
+    // Everything speeds up 18% a wave, up to 2.6x by wave 10.
+    const pace = () => clamp(1 + (game.wave - 1) * 0.18, 1, 2.6);
 
     function wrap(o: { x: number; y: number }, m = 0) {
       if (o.x < -m) o.x += W + 2 * m; else if (o.x > W + m) o.x -= W + 2 * m;
@@ -87,7 +93,7 @@
 
     function makePill(size: number, x: number, y: number): Pill {
       const dir = rand(0, TAU);
-      const speed = rand(20, 50) * (1 + (3 - size) * 0.45) * (1 + game.wave * 0.06) * scale;
+      const speed = rand(20, 50) * (1 + (3 - size) * 0.45) * pace() * scale;
       const r = PILL_R[size] * scale;
       return {
         x, y, size, r, t: r * 0.45,
@@ -96,11 +102,26 @@
       };
     }
 
-    // Distance from a point to the pill's spine; inside the pill when it's under `t`.
-    function pillDistance(p: Pill, x: number, y: number) {
-      const c = Math.cos(p.a), s = Math.sin(p.a), dx = x - p.x, dy = y - p.y;
-      const along = dx * c + dy * s, half = p.r - p.t;
+    // Distance from (x, y) to a spine of half-length `half` centred on (cx, cy) at angle `a`.
+    function spineDistance(cx: number, cy: number, a: number, half: number, x: number, y: number) {
+      const c = Math.cos(a), s = Math.sin(a), dx = x - cx, dy = y - cy;
+      const along = dx * c + dy * s;
       return Math.hypot(along - clamp(along, -half, half), dy * c - dx * s);
+    }
+    // Inside the pill when this is under `t`.
+    const pillDistance = (p: Pill, x: number, y: number) => spineDistance(p.x, p.y, p.a, p.r - p.t, x, y);
+    // The syringe is long and thin; it's hit within 6pt of its body, plunger to needle tip.
+    const syringeDistance = (sy: Syringe, x: number, y: number) => spineDistance(sy.x, sy.y, 0, 25 * scale, x, y);
+    const nextSyringe = () => rand(8, 14) / Math.sqrt(pace());
+
+    function spawnSyringe() {
+      const fromLeft = Math.random() < 0.5;
+      game.syringe = {
+        x: fromLeft ? -30 * scale : W + 30 * scale,
+        y: rand(0.15, 0.85) * H,
+        vx: (fromLeft ? 1 : -1) * rand(70, 90) * scale * Math.sqrt(pace()),
+        vy: 0, turn: rand(0.6, 1.2), reload: 1,
+      };
     }
 
     function spawnWave() {
@@ -124,9 +145,13 @@
 
     function start() {
       if (game.mode === 'over' && performance.now() - game.overAt < 800) return;
-      Object.assign(game, { mode: 'playing', score: 0, lives: 3, wave: 0, bullets: [], pills: [], bits: [], cooldown: 0, respawn: 0, nextWave: 0 });
+      Object.assign(game, {
+        mode: 'playing', score: 0, lives: 3, wave: 0, bullets: [], pills: [], bits: [],
+        syringe: null, drops: [], cooldown: 0, respawn: 0, nextWave: 0,
+      });
       game.ship = newShip();
       spawnWave();
+      game.syringeIn = nextSyringe();
       canvas.focus({ preventScroll: true });
       loop.start();
     }
@@ -161,6 +186,57 @@
       game.score += PILL_POINTS[p.size];
       burst(p.x, p.y, 6 + p.size * 4);
       if (p.size > 1) for (let k = 0; k < 2; k++) game.pills.push(makePill(p.size - 1, p.x, p.y));
+    }
+
+    function killShip() {
+      const ship = game.ship!;
+      burst(ship.x, ship.y, 24);
+      game.ship = null;
+      game.lives--;
+      if (game.lives > 0) {
+        game.respawn = 1.6;
+      } else {
+        game.mode = 'over';
+        game.overAt = performance.now();
+        clearInput();
+        if (game.score > game.best) { game.best = game.score; saveBest(); }
+      }
+    }
+
+    function killSyringe() {
+      const sy = game.syringe!;
+      burst(sy.x, sy.y, 18);
+      game.syringe = null;
+      game.syringeIn = nextSyringe();
+    }
+
+    function updateSyringe(dt: number) {
+      if (!game.syringe) {
+        if (game.mode === 'playing' && (game.syringeIn -= dt) <= 0) spawnSyringe();
+        return;
+      }
+      const sy = game.syringe;
+      sy.x += sy.vx * dt;
+      sy.y += sy.vy * dt;
+      if (sy.y < 0) sy.y += H; else if (sy.y > H) sy.y -= H;
+      if ((sy.turn -= dt) <= 0) {
+        sy.turn = rand(0.8, 1.6);
+        sy.vy = [-1, 0, 1][Math.floor(Math.random() * 3)] * 45 * scale;
+      }
+      if (sy.x < -40 * scale || sy.x > W + 40 * scale) {
+        game.syringe = null;
+        game.syringeIn = nextSyringe();
+        return;
+      }
+      // Fires from the needle, aimed at the ship; aim and rate of fire tighten each wave.
+      const ship = game.ship;
+      if (game.mode === 'playing' && ship && (sy.reload -= dt) <= 0) {
+        sy.reload = 1.6 / pace();
+        const tipX = sy.x + Math.sign(sy.vx) * 26 * scale;
+        const aim = Math.atan2(ship.y - sy.y, ship.x - tipX) + rand(-1, 1) * Math.max(0.08, 0.5 - game.wave * 0.05);
+        const speed = 200 * scale;
+        game.drops.push({ x: tipX, y: sy.y, vx: Math.cos(aim) * speed, vy: Math.sin(aim) * speed, life: 1.6 });
+      }
     }
 
     function update(dt: number) {
@@ -200,6 +276,9 @@
       const bitDrag = Math.pow(0.3, dt);
       for (const p of game.bits) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= bitDrag; p.vy *= bitDrag; p.life -= dt; }
       game.bits = game.bits.filter((p) => p.life > 0);
+      updateSyringe(dt);
+      for (const d of game.drops) { d.x += d.vx * dt; d.y += d.vy * dt; d.life -= dt; wrap(d); }
+      game.drops = game.drops.filter((d) => d.life > 0);
 
       if (game.mode !== 'playing') return;
 
@@ -209,18 +288,19 @@
         if (hit >= 0) { game.bullets.splice(hit, 1); breakPill(i); }
       }
 
-      if (ship && ship.inv <= 0 && game.pills.some((p) => pillDistance(p, ship.x, ship.y) < p.t + 7 * scale)) {
-        burst(ship.x, ship.y, 24);
-        game.ship = null;
-        game.lives--;
-        if (game.lives > 0) {
-          game.respawn = 1.6;
-        } else {
-          game.mode = 'over';
-          game.overAt = performance.now();
-          clearInput();
-          if (game.score > game.best) { game.best = game.score; saveBest(); }
-        }
+      const sy = game.syringe;
+      if (sy) {
+        const hit = game.bullets.findIndex((b) => syringeDistance(sy, b.x, b.y) < 6 * scale + 1.5);
+        if (hit >= 0) { game.bullets.splice(hit, 1); game.score += SYRINGE_POINTS; killSyringe(); }
+      }
+
+      if (ship && ship.inv <= 0) {
+        const hitPill = game.pills.some((p) => pillDistance(p, ship.x, ship.y) < p.t + 7 * scale);
+        const hitSyringe = game.syringe && syringeDistance(game.syringe, ship.x, ship.y) < 13 * scale;
+        const drop = game.drops.findIndex((d) => Math.hypot(d.x - ship.x, d.y - ship.y) < 8 * scale);
+        if (hitSyringe) killSyringe();
+        if (drop >= 0) game.drops.splice(drop, 1);
+        if (hitPill || hitSyringe || drop >= 0) killShip();
       }
       if (!game.ship && game.lives > 0) {
         game.respawn -= dt;
@@ -251,6 +331,31 @@
       ctx.restore();
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = colors.ink;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Barrel half full, flange and plunger behind, needle in front, facing the way it travels.
+    function drawSyringe(sy: Syringe) {
+      ctx.save();
+      ctx.translate(sy.x, sy.y);
+      ctx.scale(Math.sign(sy.vx) * scale, scale);
+      ctx.strokeStyle = colors.ink;
+      ctx.fillStyle = colors.node;
+      ctx.lineWidth = 1.5 / scale;
+      ctx.fillRect(-14, -5, 24, 10);
+      ctx.fillStyle = colors.ink;
+      ctx.fillRect(-2, -5, 12, 10);
+      ctx.strokeRect(-14, -5, 24, 10);
+      ctx.fillRect(10, -2.5, 3, 5);
+      ctx.beginPath();
+      ctx.moveTo(-14, -9); ctx.lineTo(-14, 9);
+      ctx.moveTo(-14, 0); ctx.lineTo(-24, 0);
+      ctx.moveTo(-24, -6); ctx.lineTo(-24, 6);
+      ctx.stroke();
+      ctx.lineWidth = 1 / scale;
+      ctx.beginPath();
+      ctx.moveTo(13, 0); ctx.lineTo(26, 0);
       ctx.stroke();
       ctx.restore();
     }
@@ -321,6 +426,8 @@
       if (game.mode !== 'idle') {
         ctx.textAlign = 'left';
         ctx.fillText(`SCORE ${pad(game.score)}`, 12, 12);
+        ctx.textAlign = 'center';
+        ctx.fillText(`WAVE ${String(game.wave).padStart(2, '0')}`, W / 2, 12);
         for (let i = 0; i < game.lives; i++) drawShip(18 + i * 16, 40, -Math.PI / 2, 0.55, false);
       }
       if (game.best) {
@@ -356,6 +463,14 @@
         ctx.beginPath();
         ctx.arc(b.x, b.y, Math.max(1.6, 2.2 * scale), 0, TAU);
         ctx.fill();
+      }
+      if (game.syringe) drawSyringe(game.syringe);
+      ctx.strokeStyle = colors.ink;
+      ctx.lineWidth = 1.5;
+      for (const d of game.drops) {
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, Math.max(2, 2.6 * scale), 0, TAU);
+        ctx.stroke();
       }
       ctx.fillStyle = colors.muted;
       for (const p of game.bits) {
