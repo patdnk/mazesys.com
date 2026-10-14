@@ -12,6 +12,12 @@ Small static site built with [Astro](https://astro.build), hosted free on GitHub
 `build.format: 'preserve'` in `astro.config.mjs` keeps those `.html` file names, so the App Store URLs never change.
 Apps listed on the home page come from `src/data/apps.ts`; add an app there and give it a folder under `src/pages/<slug>/`.
 
+## SEO
+
+- `Base.astro` writes the canonical URL, Open Graph and Twitter tags for every page; pass `image` (1200 × 630) and `jsonLd` where a page has them.
+- The home page's social preview is `public/og.png`, rendered from `design/og.html` by `scripts/render-og.sh` (headless Brave; set `BROWSER` for another Chromium).
+- `src/pages/sitemap.xml.ts` lists every page in `src/pages/` except the 404, so new pages appear without editing it. `public/robots.txt` points crawlers at it.
+
 ## Logo
 
 `src/assets/mazesys-logo.svg` is traced from `design/mazesys-logo-source.jpg` by `python3 scripts/trace-logo.py`

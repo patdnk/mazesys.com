@@ -77,7 +77,7 @@ body.plain { --d-ink: #111111; --d-muted: #5C5C5C; --d-line: #CFCFCF; --d-grid: 
 .home-section { margin: 72px 0 0; }
 .home-section.intro { text-align: center; max-width: 620px; margin-left: auto; margin-right: auto; }
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--d-tag); margin: 0 0 10px; }
-body.plain h1, body.plain h2 { color: var(--d-ink); }
+body.plain h1, body.plain h2 { color: var(--d-ink); text-wrap: balance; }
 body.plain p, body.plain .lead { color: var(--d-muted); }
 
 .diagram { margin: 0; border: 1px solid var(--d-rule); border-radius: 4px; overflow: hidden; background: var(--d-node); }
@@ -122,6 +122,23 @@ body.plain a.card.app:hover { border-color: var(--d-ink); }
 .contact p { max-width: 560px; }
 .contact-button { display: inline-block; margin-top: 12px; padding: 14px 22px; border-radius: 3px; background: var(--d-ink); color: var(--d-node); font-weight: 600; text-decoration: none; letter-spacing: -0.2px; }
 .contact-button:hover { opacity: 0.85; }
+/* Positioning: the tagline under the logo, the intro's actions, and the services list. */
+.home-tagline { margin: 28px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--d-muted); animation: fade-up 0.6s ease-out 2s both; }
+.home-tagline + .skills { margin-top: 20px; }
+.intro-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 24px; margin-top: 24px; }
+.intro-actions .contact-button { margin-top: 0; }
+.text-link { color: var(--d-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.text-link:hover { text-decoration-thickness: 2px; }
+.home-section h2 { font-size: clamp(24px, 4vw, 32px); letter-spacing: -0.8px; line-height: 1.15; margin: 0 0 10px; }
+.section-lead { margin: 0 0 4px; }
+.service-list { list-style: none; padding: 0; margin: 20px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.service-list .card { margin: 0; }
+.service-list h3 { margin: 0; font-size: 18px; letter-spacing: -0.3px; color: var(--d-ink); }
+body.plain .service-list p { margin: 6px 0 0; font-size: 15px; line-height: 1.55; }
+@media (max-width: 640px) {
+  .service-list { grid-template-columns: 1fr; }
+}
+
 .home-footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--d-rule); font-size: 13px; color: var(--d-muted); }
 .home-footer a { color: var(--d-muted); }
 
@@ -170,7 +187,7 @@ body.plain a.card.app:hover { border-color: var(--d-ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .maze-logo .wall { animation: none; fill-opacity: 1; stroke: none; }
-  .maze-logo .wordmark, .skills li { animation: none; opacity: 1; }
+  .maze-logo .wordmark, .skills li, .home-tagline { animation: none; opacity: 1; }
   .diagram .flow { display: none; }
 }
 

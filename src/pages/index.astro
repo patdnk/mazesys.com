@@ -11,17 +11,71 @@ const skills = [
   'TypeScript', 'Node.js', 'Microsoft Fabric', 'Power BI',
 ];
 
+const services = [
+  {
+    title: 'iOS and Android apps',
+    body: 'Native Swift and SwiftUI on iPhone, Kotlin and Jetpack Compose on Android, or one shared codebase with Kotlin Multiplatform or React Native when that suits the budget better. Designed, built and taken through store review.',
+  },
+  {
+    title: 'Backends and web',
+    body: 'TypeScript and Node.js APIs, sync, sign-in and admin tools: the parts users never see but every app depends on.',
+  },
+  {
+    title: 'Data and reporting',
+    body: 'Microsoft Fabric pipelines and Power BI dashboards that turn app and business data into reporting people actually open.',
+  },
+  {
+    title: 'Music and sound',
+    body: 'Music production, and the sound for the studio’s own products.',
+  },
+];
+
 // `count` animates from zero; `pad` keeps the two-digit look while it counts.
 const stats = [
-  { count: 1, pad: 2, label: 'iPhone app in the studio: Zero Bite' },
+  { count: 2, pad: 2, label: 'Platforms built natively: iOS and Android' },
   { count: 4, pad: 2, label: 'Disciplines under one roof' },
   { text: 'UK', label: 'Based in the United Kingdom' },
 ];
+
+const title = 'Mazesys · Independent iOS and Android app studio, UK';
+const description =
+  'Mazesys is an independent UK studio that designs and builds iOS and Android apps, the APIs behind them, and Power BI and Microsoft Fabric reporting.';
+
+const site = Astro.site!.href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${site}#organization`,
+      name: 'Mazesys',
+      url: site,
+      logo: new URL('/apple-touch-icon.png', site).href,
+      email: contactEmail,
+      description,
+      address: { '@type': 'PostalAddress', addressCountry: 'GB' },
+      knowsAbout: skills,
+      makesOffer: services.map((service) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: service.title, description: service.body },
+      })),
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${site}#website`,
+      url: site,
+      name: 'Mazesys',
+      inLanguage: 'en-GB',
+      publisher: { '@id': `${site}#organization` },
+    },
+  ],
+};
 ---
 
-<Base title="Mazesys" description="Mazesys is an independent UK studio for mobile apps, full-stack products, data and BI, and music production." bare>
+<Base {title} {description} {jsonLd} image="/og.png" imageAlt="The Mazesys maze logo: independent iOS and Android app studio, UK" bare>
   <section class="home">
     <div class="maze-logo" set:html={logo} />
+    <p class="home-tagline">Independent app studio · UK</p>
 
     <ul class="skills" aria-label="Skills">
       {skills.map((skill, i) => <li style={`--i:${i}`}>{skill}</li>)}
@@ -29,16 +83,33 @@ const stats = [
   </section>
 
   <section class="home-section intro">
-    <p class="eyebrow">Independent studio</p>
-    <h1>Small software, made carefully.</h1>
+    <p class="eyebrow">Mobile app studio</p>
+    <h1>iOS and Android apps, built end to end.</h1>
     <p class="lead">
-      Mazesys designs and builds mobile apps and the full-stack systems behind them, turns data into reporting people
-      actually use with Microsoft Fabric and Power BI, and produces music on the side. Every product is made end to
-      end in-house: design, iOS, Android, web, APIs, data and the sound.
+      Mazesys designs and builds native apps for iPhone and Android, the backends behind them, and Power BI and
+      Microsoft Fabric reporting. Design, code, APIs and data all come from one studio, so nothing gets lost in
+      hand-offs between agencies.
     </p>
+    <div class="intro-actions">
+      <a class="contact-button" href={`mailto:${contactEmail}?subject=New%20project`}>Start a project</a>
+      <a class="text-link" href="#products">See what we’ve built</a>
+    </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section services" aria-labelledby="services-title">
+    <p class="eyebrow">What we do</p>
+    <h2 id="services-title">Everything an app needs, from one studio</h2>
+    <ul class="service-list">
+      {services.map((service) => (
+        <li class="card">
+          <h3>{service.title}</h3>
+          <p>{service.body}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="home-section" aria-label="How the studio works">
     <StudioDiagram />
 
     <ul class="stats">
@@ -53,8 +124,10 @@ const stats = [
     </ul>
   </section>
 
-  <section class="home-section">
+  <section class="home-section" id="products" aria-labelledby="products-title">
     <p class="eyebrow">Products</p>
+    <h2 id="products-title">Our own apps</h2>
+    <p class="section-lead">Alongside project work, Mazesys designs, builds and runs apps of its own.</p>
     <div class="apps">
       {apps.map((app) => (
         <a class="card app" href={`/${app.slug}/`}>
@@ -76,7 +149,7 @@ const stats = [
       Email for app support, new work, or anything else. A real person reads every message and replies within a couple
       of working days.
     </p>
-    <a class="contact-button" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+    <a class="contact-button" href={`mailto:${contactEmail}?subject=New%20project`}>{contactEmail}</a>
   </section>
 
   <Steroids />
