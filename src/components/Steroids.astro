@@ -4,6 +4,9 @@
 // The best score stays in this browser only.
 ---
 
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
 <section class="home-section steroids" aria-label="Steroids, a small game">
   <p class="eyebrow">Break room</p>
   <canvas
@@ -33,6 +36,9 @@
   };
   const BEST_KEY = 'mazesys-steroids-best';
 
+  // Arcade pixel font for in-game text only; the stylesheet link sits in this component, not the site head.
+  const PIXEL_FONT = '"Press Start 2P", monospace';
+
   function init(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d')!;
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -59,13 +65,19 @@
       try { localStorage.setItem(BEST_KEY, String(game.best)); } catch {}
     }
 
-    // The monochrome palette lives on body.plain as --d-* tokens, inverted in dark mode.
+    // The monochrome palette lives on body.plain as --d-* tokens, inverted in dark mode. On a first visit
+    // Safari can run this before the stylesheet applies, so use the same values as fallbacks and keep
+    // re-reading on each draw until the tokens show up.
+    let colorsLoaded = false;
     function readColors() {
       const s = getComputedStyle(document.body);
-      colors.ink = s.getPropertyValue('--d-ink').trim();
-      colors.muted = s.getPropertyValue('--d-muted').trim();
-      colors.tag = s.getPropertyValue('--d-tag').trim();
-      colors.node = s.getPropertyValue('--d-node').trim();
+      const token = (name: string, light: string, darkValue: string) =>
+        s.getPropertyValue(name).trim() || (dark.matches ? darkValue : light);
+      colorsLoaded = s.getPropertyValue('--d-ink').trim() !== '';
+      colors.ink = token('--d-ink', '#111111', '#EEEEEE');
+      colors.muted = token('--d-muted', '#5C5C5C', '#A3A3A3');
+      colors.tag = token('--d-tag', '#8A8A8A', '#7A7A7A');
+      colors.node = token('--d-node', '#FFFFFF', '#0B0B0B');
     }
 
     function resize() {
@@ -77,6 +89,10 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       W = w; H = h;
       scale = Math.max(0.6, Math.min(1, w / 700));
+      // The idle screen's pills are sized to the canvas, which can start at the default 300 x 150 before the CSS lands.
+      if (game.mode === 'idle') {
+        game.pills = Array.from({ length: 5 }, () => makePill(Math.random() < 0.5 ? 2 : 3, rand(0, W), rand(0, H)));
+      }
       if (!loop.running) draw();
     }
 
@@ -387,9 +403,14 @@
     const joystick = () => ({ x: 22 + 44, y: H - 22 - 44, R: 44 });
     const fireButton = () => ({ x: W - 22 - 34, y: H - 22 - 34, R: 34 });
 
-    function setTagFont() {
-      ctx.font = '500 11px "Mona Sans", sans-serif';
-      if ('letterSpacing' in ctx) ctx.letterSpacing = '1.2px';
+    /** Draws uppercase pixel text centred vertically on `y`, shrinking the size until it fits the canvas width. */
+    function pixelText(text: string, x: number, y: number, size: number, align: CanvasTextAlign, color: string) {
+      const fit = Math.floor((W - 24) / text.length);
+      ctx.font = `${Math.max(6, Math.min(size, fit))}px ${PIXEL_FONT}`;
+      ctx.textAlign = align;
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = color;
+      ctx.fillText(text.toUpperCase(), x, y);
     }
 
     function drawTouchControls() {
@@ -410,50 +431,32 @@
       ctx.arc(f.x, f.y, f.R, 0, TAU);
       if (firing) ctx.fill(); else ctx.stroke();
       ctx.globalAlpha = 1;
-      setTagFont();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = firing ? colors.node : colors.tag;
-      ctx.fillText('FIRE', f.x + 0.6, f.y + 1);
-      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      pixelText('FIRE', f.x, f.y + 1, 9, 'center', firing ? colors.node : colors.tag);
     }
 
-    // HUD reads like the diagram's tags: small, uppercase, letter-spaced.
     function drawHud() {
-      setTagFont();
-      ctx.textBaseline = 'top';
-      ctx.fillStyle = colors.tag;
+      const size = W < 420 ? 8 : 10;
       if (game.mode !== 'idle') {
-        ctx.textAlign = 'left';
-        ctx.fillText(`SCORE ${pad(game.score)}`, 12, 12);
-        ctx.textAlign = 'center';
-        ctx.fillText(`WAVE ${String(game.wave).padStart(2, '0')}`, W / 2, 12);
-        for (let i = 0; i < game.lives; i++) drawShip(18 + i * 16, 40, -Math.PI / 2, 0.55, false);
+        pixelText(`SCORE ${pad(game.score)}`, 12, 19, size, 'left', colors.tag);
+        pixelText(`WAVE ${String(game.wave).padStart(2, '0')}`, W / 2, 19, size, 'center', colors.tag);
+        for (let i = 0; i < game.lives; i++) drawShip(18 + i * 16, 42, -Math.PI / 2, 0.55, false);
       }
-      if (game.best) {
-        ctx.textAlign = 'right';
-        ctx.fillText(`BEST ${pad(game.best)}`, W - 12, 12);
-      }
-      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      if (game.best) pixelText(`BEST ${pad(game.best)}`, W - 12, 19, size, 'right', colors.tag);
     }
 
-    function drawOverlay(title: string, sub: string) {
+    function drawOverlay(title: string, ...lines: string[]) {
       ctx.globalAlpha = 0.75;
       ctx.fillStyle = colors.node;
       ctx.fillRect(0, 0, W, H);
       ctx.globalAlpha = 1;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = colors.ink;
-      ctx.font = `700 ${Math.round(18 + 10 * scale)}px "Mona Sans", sans-serif`;
-      ctx.fillText(title, W / 2, H / 2 - 14);
-      ctx.fillStyle = colors.muted;
-      ctx.font = '500 14px "Mona Sans", sans-serif';
-      ctx.fillText(sub, W / 2, H / 2 + 18);
+      const top = H / 2 - lines.length * 10;
+      pixelText(title, W / 2, top, Math.round(16 + 12 * scale), 'center', colors.ink);
+      lines.forEach((line, i) => pixelText(line, W / 2, top + 36 + i * 20, 10, 'center', colors.muted));
     }
 
     function draw() {
       if (!W) return;
+      if (!colorsLoaded) readColors();
       canvas.classList.toggle('playing', game.mode === 'playing');
       ctx.clearRect(0, 0, W, H);
       ctx.lineJoin = 'round';
@@ -490,7 +493,7 @@
       else if (game.mode === 'paused') drawOverlay('Paused', `${tap} to resume`);
       else if (game.mode === 'over') {
         const best = game.score > 0 && game.score >= game.best;
-        drawOverlay(best ? 'New best' : 'Game over', `${game.score.toLocaleString('en-GB')} points · ${tap} to play again`);
+        drawOverlay(best ? 'New best' : 'Game over', `${game.score.toLocaleString('en-GB')} points`, `${tap} to play again`);
       }
       drawHud();
     }
@@ -575,9 +578,9 @@
     readColors();
     new ResizeObserver(resize).observe(canvas);
     resize();
-    game.pills = Array.from({ length: 5 }, () => makePill(Math.random() < 0.5 ? 2 : 3, rand(0, W), rand(0, H)));
     loop.start();
-    document.fonts?.ready.then(draw);
+    document.fonts?.load(`16px ${PIXEL_FONT}`).then(draw, () => {});
+    window.addEventListener('load', draw);
   }
 
   const canvas = document.getElementById('steroids');
