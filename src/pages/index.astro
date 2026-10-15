@@ -37,9 +37,9 @@ const stats = [
   { text: 'UK', label: 'Based in the United Kingdom' },
 ];
 
-const title = 'Mazesys · Independent iOS and Android app studio, UK';
+const title = 'Maze Sys · Independent iOS and Android app studio, UK';
 const description =
-  'Mazesys is an independent UK studio that designs and builds iOS and Android apps, the APIs behind them, and Power BI and Microsoft Fabric reporting.';
+  'Maze Sys is an independent UK studio that designs and builds iOS and Android apps, the APIs behind them, and Power BI and Microsoft Fabric reporting.';
 
 const site = Astro.site!.href;
 const jsonLd = {
@@ -48,7 +48,8 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${site}#organization`,
-      name: 'Mazesys',
+      name: 'Maze Sys',
+      legalName: 'Maze Sys Ltd',
       url: site,
       logo: new URL('/apple-touch-icon.png', site).href,
       email: contactEmail,
@@ -64,7 +65,7 @@ const jsonLd = {
       '@type': 'WebSite',
       '@id': `${site}#website`,
       url: site,
-      name: 'Mazesys',
+      name: 'Maze Sys',
       inLanguage: 'en-GB',
       publisher: { '@id': `${site}#organization` },
     },
@@ -72,7 +73,7 @@ const jsonLd = {
 };
 ---
 
-<Base {title} {description} {jsonLd} image="/og.png" imageAlt="The Mazesys maze logo: independent iOS and Android app studio, UK" bare>
+<Base {title} {description} {jsonLd} image="/og.png" imageAlt="The Maze Sys maze logo: independent iOS and Android app studio, UK" bare>
   <section class="home">
     <div class="maze-logo" set:html={logo} />
     <p class="home-tagline">Independent app studio · UK</p>
@@ -86,7 +87,7 @@ const jsonLd = {
     <p class="eyebrow">Mobile app studio</p>
     <h1>iOS and Android apps, built end to end.</h1>
     <p class="lead">
-      Mazesys designs and builds native apps for iPhone and Android, the backends behind them, and Power BI and
+      Maze Sys designs and builds native apps for iPhone and Android, the backends behind them, and Power BI and
       Microsoft Fabric reporting. Design, code, APIs and data all come from one studio, so nothing gets lost in
       hand-offs between agencies.
     </p>
@@ -127,7 +128,7 @@ const jsonLd = {
   <section class="home-section" id="products" aria-labelledby="products-title">
     <p class="eyebrow">Products</p>
     <h2 id="products-title">Our own apps</h2>
-    <p class="section-lead">Alongside project work, Mazesys designs, builds and runs apps of its own.</p>
+    <p class="section-lead">Alongside project work, Maze Sys designs, builds and runs apps of its own.</p>
     <div class="apps">
       {apps.map((app) => (
         <a class="card app" href={`/${app.slug}/`}>
@@ -155,7 +156,7 @@ const jsonLd = {
   <Steroids />
 
   <footer class="home-footer">
-    <span>© {new Date().getFullYear()} Mazesys</span>
+    <span>© {new Date().getFullYear()} Maze Sys Ltd</span>
     <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
   </footer>
 </Base>

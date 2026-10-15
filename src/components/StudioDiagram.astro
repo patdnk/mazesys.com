@@ -1,5 +1,5 @@
 ---
-// Blueprint-style system diagram: the four disciplines feed the Mazesys studio, which ships the apps.
+// Blueprint-style system diagram: the four disciplines feed the Maze Sys studio, which ships the apps.
 // Drawn twice (wide and tall) so it stays legible on phones; CSS shows one or the other.
 // Hovering or focusing a node lights the paths in its `keys`; the script lives on the home page.
 
@@ -85,14 +85,14 @@ function joints(d: string): [number, number][] {
 
 <figure class="diagram" data-diagram>
   {layouts.map(({ name, layout }) => (
-    <svg class={`diagram-${name}`} viewBox={layout.viewBox} role="img" aria-label="Mobile apps, full-stack, data and BI, and music production feed the Mazesys studio, which ships Zero Bite and the next app.">
+    <svg class={`diagram-${name}`} viewBox={layout.viewBox} role="img" aria-label="Mobile apps, full-stack, data and BI, and music production feed the Maze Sys studio, which ships Zero Bite and the next app.">
       <defs>
         <pattern id={`grid-minor-${name}`} width="20" height="20" patternUnits="userSpaceOnUse"><path class="grid-minor" d="M20 0H0V20" fill="none" /></pattern>
         <pattern id={`grid-major-${name}`} width="100" height="100" patternUnits="userSpaceOnUse"><path class="grid-major" d="M100 0H0V100" fill="none" /></pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#grid-minor-${name})`} />
       <rect width="100%" height="100%" fill={`url(#grid-major-${name})`} />
-      <text class="tag sheet" x="16" y="22">MAZESYS · STUDIO OVERVIEW · REV 01</text>
+      <text class="tag sheet" x="16" y="22">MAZE SYS · STUDIO OVERVIEW · REV 01</text>
 
       {layout.links.map((link) => <path class="link" data-keys={link.keys} d={link.d} />)}
       {layout.links.map((link) => <path class:list={['flow', { slow: link.slow, rev: link.rev }]} data-keys={link.keys} d={link.d} />)}
@@ -101,7 +101,7 @@ function joints(d: string): [number, number][] {
       <g class="hub" data-node="hub" tabindex="0">
         <rect x={layout.hub.x} y={layout.hub.y} width={layout.hub.w} height={layout.hub.h} />
         <rect class="core" x={layout.hub.x} y={layout.hub.y} width="6" height={layout.hub.h} />
-        <text x={layout.hub.x + layout.hub.w / 2 + 3} y={layout.hub.y + layout.hub.h / 2 + 5}>MAZESYS</text>
+        <text x={layout.hub.x + layout.hub.w / 2 + 3} y={layout.hub.y + layout.hub.h / 2 + 5}>MAZE SYS</text>
         <text class="tag" x={layout.hub.x} y={layout.hub.y - 9}>STUDIO · CORE</text>
       </g>
 

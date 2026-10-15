@@ -1,5 +1,5 @@
 ---
-// Shared page shell. `section` switches the header between the Mazesys site and an app's pages.
+// Shared page shell. `section` switches the header between the Maze Sys site and an app's pages.
 import '../styles/global.css';
 import { contactEmail } from '../data/apps';
 
@@ -18,7 +18,7 @@ interface Props {
 
 const { title, description, section = 'mazesys', bare = false, image, imageAlt, jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const siteName = section === 'zerobite' ? 'Zero Bite' : 'Mazesys';
+const siteName = section === 'zerobite' ? 'Zero Bite' : 'Maze Sys';
 const imageUrl = image && new URL(image, Astro.site);
 ---
 
@@ -65,7 +65,7 @@ const imageUrl = image && new URL(image, Astro.site);
           </>
         ) : (
           <>
-            <a href="/" class="wordmark">mazesys</a>
+            <a href="/" class="wordmark">maze sys</a>
             <nav><a href={`mailto:${contactEmail}`}>Contact</a></nav>
           </>
         )}
@@ -86,10 +86,10 @@ const imageUrl = image && new URL(image, Astro.site);
               Recall information from the Food Standards Agency, licensed under the Open Government Licence v3.0. Zero Bite
               isn’t affiliated with the FSA.
             </p>
-            <p><a href="/">A Mazesys app</a></p>
+            <p><a href="/">A Maze Sys app</a></p>
           </>
         ) : (
-          <p>Mazesys · <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+          <p>Maze Sys · <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
         )}
       </footer>}
     </div>

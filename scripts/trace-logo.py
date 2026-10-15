@@ -108,7 +108,7 @@ def path(s):
     return 'M' + ' L'.join(f"{fmt(x - minx + pad)} {fmt(y - miny + pad)}" for x, y in p) + 'Z'
 
 vw, vh = fmt(maxx - minx + 2 * pad), fmt(maxy - miny + 2 * pad)
-lines = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vw} {vh}" role="img" aria-label="Mazesys">',
+lines = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vw} {vh}" role="img" aria-label="Maze Sys">',
          '  <g class="maze" fill-rule="evenodd">']
 lines += [f'    <path class="wall" style="--i:{i}" pathLength="1" d="{path(s)}"/>' for i, s in enumerate(walls)]
 lines += ['  </g>', '  <g class="wordmark" fill-rule="evenodd">']

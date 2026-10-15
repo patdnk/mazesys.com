@@ -52,7 +52,7 @@ a { color: var(--orange); }
 footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 13px; color: var(--muted); }
 footer p { margin: 4px 0; }
 
-/* Mazesys site */
+/* Maze Sys site */
 .wordmark { font-weight: 700; letter-spacing: -0.6px; font-size: 20px; }
 .apps { display: grid; gap: 12px; }
 a.card.app { display: flex; gap: 14px; align-items: flex-start; text-decoration: none; }
